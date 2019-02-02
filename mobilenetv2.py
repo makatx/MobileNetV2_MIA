@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-from keras.layers import Conv2D, DepthwiseConv2D, BatchNormalization, Add, Input, Activation, Dense, Softmax, Flatten
+from keras.layers import Conv2D, DepthwiseConv2D, BatchNormalization, Add, Input, Activation, Dense, Softmax, Flatten, Dropout
 from keras.models import Model
 from keras.activations import relu
 from keras import backend as K
@@ -122,7 +122,7 @@ def MobileNetV2_FE(x, output_stride=16, depth_multiplier=1.0):
         stride = 1
     ## Making Stride=1 for the next block since we want a maximum of 16
     ## as output_stride
-    
+
     m = bottleneck_sequence(m, end_points, layer_count, out_channels=160, stride=stride, count=3, depth_multiplier=depth_multiplier)
     layer_count += 3
 
@@ -136,17 +136,19 @@ def MobileNetV2_FE(x, output_stride=16, depth_multiplier=1.0):
 def MobileNetv2Classifier(images, num_classes=2, output_stride=16, depth_multiplier=1.0):
     '''
     Creates and returns classifier model using mobilenetv2 architecture
-    
+
     '''
     features, _ = MobileNetV2_FE(images, output_stride=output_stride, depth_multiplier=depth_multiplier)
     features = Flatten()(features)
     features = Dense(1280, activation='relu')(features)
-    
+
+#    features = Dropout(0.1)(features)
+
     logits = Dense(num_classes)(features)
     probabilities = Softmax()(logits)
-    
+
     return probabilities
-    
+
 
 if __name__ == '__main__':
     print('Creating the model for testing with input shape (16,16,3)...')
