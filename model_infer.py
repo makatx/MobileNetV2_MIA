@@ -41,10 +41,10 @@ if __name__ == '__main__':
 
 
     with open('all_patch_list.json', 'rb') as f:
-        all_patch_list = json.load(f)['list'][:10]
+        all_patch_list = json.load(f)['list'][:20]
 
     with open('detections_patch_list.json', 'rb') as f:
-        detections_patch_list = json.load(f)['list'][:10]
+        detections_patch_list = json.load(f)['list'][:20]
 
     dims = (256,256)
     input_patch = Input(shape=(dims[0],dims[1],3,))
@@ -67,13 +67,17 @@ if __name__ == '__main__':
         print('Weights needed to predict. Exiting.')
         sys.exit(1)
 
-    predicitons = model.predict_generator(generator, steps, verbose=1)
+    predictions = model.predict_generator(generator, steps, verbose=1)
 
     output_data = {}
-    output_data['predicitons'] = predicitons.tolist()
-    output_data['labels'] = labels_list
+    output_data['predictions'] = predictions.tolist()
+    output_data['labels'] = np.array(labels_list).tolist()
 
-    print('Got {} predictions and {} labels\nsaving to json...'.format(predicitons.shape[0], len(labels_list)))
+    print('Got {} predictions and {} labels\nsaving to json...'.format(predictions.shape[0], len(labels_list)))
+
+    print('output_data[predictions] type: {}'.format(type(output_data['predictions'])))
+    print('output_data[labels] type: {}'.format(type(output_data['labels'])))
+    print(output_data)
 
     with open(output_dir+out_prefix+'inference.json', mode='w') as f:
         json.dump(output_data, f)
