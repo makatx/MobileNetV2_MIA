@@ -69,6 +69,10 @@ def patch_generator(folder, all_patch_list,
 
             if save_labels:
                 labels_list.extend(ground_truth)
+                #print('||----------------------------------------------||')
+                #print('len(patch): {}'.format(len(patch)))
+                #print('len(ground_truth): {}'.format(len(ground_truth)))
+                #print('len(labels_list): {}'.format(len(labels_list)))
                 yield X_train
             else:
                 y_train = np.array(ground_truth)
