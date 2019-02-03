@@ -26,9 +26,9 @@ def patch_generator(folder, all_patch_list,
     detection_ratio = dls/cls = dls/(dls * (sf+1)/sf) = sf/(sf+1)
     '''
 
-    detection_ratio = sample_factor / (sample_factor + 1)
-    true_batch = math.ceil(detection_ratio * batch_size)
-    all_batch_size = batch_size - true_batch
+    #detection_ratio = sample_factor / (sample_factor + 1)
+    #true_batch = math.ceil(detection_ratio * batch_size)
+    #all_batch_size = batch_size - true_batch
 
     #print('true_batch_size: {} \t all_batch_size: {}'.format(true_batch, all_batch_size))
 
@@ -47,7 +47,7 @@ def patch_generator(folder, all_patch_list,
 
         for offset in range(0,sampleset_size,batch_size):
 
-            sample_batch = combined_sample_list[offset:offset+true_batch]
+            sample_batch = combined_sample_list[offset:offset+batch_size]
 
 
             patch = []
