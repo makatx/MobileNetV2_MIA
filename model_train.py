@@ -16,7 +16,7 @@ from mobilenetv2 import MobileNetv2Classifier
 import json
 import argparse
 import sys
-
+from datetime import datetime
 
 if __name__ == '__main__':
 
@@ -41,6 +41,8 @@ if __name__ == '__main__':
     sample_factor = args.sample_factor
     checkpoint_dir = args.checkpoint_dir
     log_dir = args.log_dir
+
+    date = str(datetime.now().date())
 
     print("Received following parameters:")
     print("batch_size={} \n checkpoint_dir={} \n epochs={} \n initial_epoch={} \n learning_rate={} \
@@ -80,7 +82,7 @@ if __name__ == '__main__':
     sampleset_size_validn = math.ceil(len(test_true_list)/sample_factor) + len(test_true_list)
     steps_per_epoch_validn = math.ceil(sampleset_size_validn/batch_size)
 
-    checkpointer = ModelCheckpoint(checkpoint_dir+'weights_{epoch:02d}--{categorical_accuracy:.4f}--{val_loss:.4f}.hdf5', monitor='categorical_accuracy',
+    checkpointer = ModelCheckpoint(checkpoint_dir+date+'_weights_{epoch:02d}--{categorical_accuracy:.4f}--{val_loss:.4f}.hdf5', monitor='categorical_accuracy',
                                save_weights_only=True, save_best_only=True)
     csvlogger = CSVLogger(log_dir+'fit.log', append=True)
 
@@ -93,6 +95,6 @@ if __name__ == '__main__':
     history = model.fit_generator(train_generator, steps_per_epoch=steps_per_epoch, epochs=epochs, verbose=1, callbacks=[checkpointer, csvlogger],
     validation_data=validn_generator, validation_steps=steps_per_epoch_validn, initial_epoch=initial_epoch)
 
-    last_epoch = epochs + initial_epoch
-    model.save('modelsaves/mobilenetv2_model_camelyon17_afterEpoch-'+str(last_epoch)+'.h5')
+    last_epoch = epochs
+    model.save('modelsaves/'+date+'_mobilenetv2_model_camelyon17_afterEpoch-'+str(last_epoch)+'.h5')
 
