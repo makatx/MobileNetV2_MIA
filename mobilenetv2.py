@@ -142,7 +142,7 @@ def MobileNetv2Classifier(images, num_classes=2, output_stride=16, depth_multipl
     features = Flatten()(features)
     features = Dense(1280, activation='relu')(features)
 
-#    features = Dropout(0.1)(features)
+    features = Dropout(0.1)(features)
 
     logits = Dense(num_classes)(features)
     probabilities = Softmax()(logits)
