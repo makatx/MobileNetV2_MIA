@@ -5,6 +5,8 @@ import matplotlib.pyplot as plt
 from sklearn.utils import shuffle
 from itertools import cycle
 import math
+from keras.preprocessing.image import ImageDataGenerator
+
 
 def patch_generator(folder, all_patch_list,
                     det_patch_list, batch_size=64,
@@ -32,6 +34,8 @@ def patch_generator(folder, all_patch_list,
 
     #print('true_batch_size: {} \t all_batch_size: {}'.format(true_batch, all_batch_size))
 
+    IDG = ImageDataGenerator()
+
     while 1:
         all_patch_list = shuffle(all_patch_list)
         det_patch_list = shuffle(det_patch_list)
@@ -57,11 +61,30 @@ def patch_generator(folder, all_patch_list,
                 filename = folder + sample[0]
                 coords = sample[1]
                 level = levels[np.random.randint(0, len(levels), dtype=np.int8)]
-                patch_img = getRegionFromSlide(getWSI(filename), level=level, start_coord=coords, dims=dims).astype(np.float)
+
+                brightness = 0.85 + np.random.rand()*(1.15-0.85)
+                if brightness < 1.02 and brightness >0.98:
+                    brightness = 1
+
+                dims_factor = 0.9 + np.random.rand()*(1.15-0.9)
+                if dims_factor < 1.02 and dims_factor > 0.85:
+                    dims_factor = 1
+                zoom_dims = int(dims[0] / dims_factor)
+
+                flip_v = np.random.rand() > 0.5
+                flip_h = np.random.rand() > 0.5
+
+                transformation = {'brightness':brightness, 'flip_horizontal': flip_h, 'flip_vertical': flip_v}
+
+                patch_img = getRegionFromSlide(getWSI(filename), level=level, start_coord=coords, dims=(zoom_dims, zoom_dims)).astype(np.float)
+                if zoom_dims != dims[0]:
+                    patch_img = cv2.resize(patch_img, dims)
+                patch_img = IDG.apply_transform(patch_img, transformation)
+
                 patch_img = (patch_img - 128) / 128
                 patch.append(patch_img)
 
-                ground_truth.append(getLabel(filename,level,coords,dims))
+                ground_truth.append(getLabel(filename,level,coords,(zoom_dims, zoom_dims)))
 
                 #print('Level used: {}'.format(level))
 
