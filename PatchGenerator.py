@@ -6,7 +6,7 @@ from sklearn.utils import shuffle
 from itertools import cycle
 import math
 from keras.preprocessing.image import ImageDataGenerator
-
+import cv2
 
 def patch_generator(folder, all_patch_list,
                     det_patch_list, batch_size=64,
@@ -67,7 +67,7 @@ def patch_generator(folder, all_patch_list,
                     brightness = 1
 
                 dims_factor = 0.9 + np.random.rand()*(1.15-0.9)
-                if dims_factor < 1.02 and dims_factor > 0.85:
+                if dims_factor < 1.02 and dims_factor > 0.98:
                     dims_factor = 1
                 zoom_dims = int(dims[0] / dims_factor)
 
