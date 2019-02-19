@@ -120,6 +120,45 @@ def getLabel(filename, level, coords, dims):
         #print('{} does not exist'.format(annotn_filename))
         return np.array([1.0, 0.0])
 
+def getTileList(slide, level=2, tile_size=256):
+    '''
+    Returns a list of coordinates for starting point of tile of given tile_size square for the given slide at given level
+    converted/scaled to full dimension of slide
+    '''
+    dims = slide.level_dimensions[level]
+    tile_list = []
+    width = dims[0]-tile_size
+    height = dims[1]-tile_size
+
+    for y in range(0, height, tile_size):
+        for x in range(0, width, tile_size):
+            tile_list.append([x,y])
+        tile_list.append([width,y])
+    for x in range(0, width, tile_size):
+        tile_list.append([x, height])
+    tile_list.append([width, height])
+
+    tile_list = (np.array(tile_list) * slide.level_downsamples[level]).astype(np.int32)
+
+    return tile_list
+
+def patch_batch_generator(slide, tile_list, batch_size, level=2, dims=(256,256)):
+    '''
+    Generating image batches from given slide and level using coordinates in tile_list
+    images are normalized: (x-128)/128 before being returned
+    '''
+    images = []
+    b = 0
+    for coord in tile_list:
+        if b==batch_size:
+            b=0
+            images_batch = np.array(images)
+            images = []
+            yield images_batch
+        images.append(((getRegionFromSlide(slide, level, coord, dims=dims).astype(np.float))-128)/128)
+        b +=1
+    images_batch = np.array(images)
+    yield images_batch
 
 '''
 Test code:
