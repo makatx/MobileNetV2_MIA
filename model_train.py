@@ -32,6 +32,7 @@ if __name__ == '__main__':
     aparser.add_argument('--log-dir', type=str, default='logs/', help='location to store fit.log (appended)')
     aparser.add_argument('--all-patch-list', type=str, help='full path of all_patch_list json file')
     aparser.add_argument('--detections-patch-list', type=str, help='full path of detections_patch_list json file')
+    aparser.add_argument('--saves-name', type=str, default='none', help='string to add in checkpoints and model saves file names')
 
     args = aparser.parse_args()
 
@@ -43,6 +44,7 @@ if __name__ == '__main__':
     sample_factor = args.sample_factor
     checkpoint_dir = args.checkpoint_dir
     log_dir = args.log_dir
+    saves_name = args.saves_name
     train_levels = [0,1]
 
     date = str(datetime.now().date())
@@ -88,7 +90,7 @@ if __name__ == '__main__':
     sampleset_size_validn = math.ceil(len(test_true_list)/sample_factor) + len(test_true_list)
     steps_per_epoch_validn = math.ceil(sampleset_size_validn/batch_size)
 
-    checkpointer = ModelCheckpoint(checkpoint_dir+date+'_weights_imageAug_dropout_{epoch:02d}--{categorical_accuracy:.4f}--{val_loss:.4f}.hdf5', monitor='categorical_accuracy',
+    checkpointer = ModelCheckpoint(checkpoint_dir+date+'_weights_'+saves_name+'_{epoch:02d}--{categorical_accuracy:.4f}--{val_loss:.4f}.hdf5', monitor='categorical_accuracy',
                                save_weights_only=True, save_best_only=True)
     csvlogger = CSVLogger(log_dir+'fit.log', append=True)
 
@@ -102,4 +104,4 @@ if __name__ == '__main__':
     validation_data=validn_generator, validation_steps=steps_per_epoch_validn, initial_epoch=initial_epoch)
 
     last_epoch = epochs
-    model.save('modelsaves/'+date+'_mobilenetv2_model_camelyon17_imageAug_dropout_afterEpoch-'+str(last_epoch)+'.h5')
+    model.save('modelsaves/'+date+'_mobilenetv2_model_camelyon17_'+saves_name+'_afterEpoch-'+str(last_epoch)+'.h5')
