@@ -30,6 +30,8 @@ if __name__ == '__main__':
     aparser.add_argument('--sample-factor', type=float, default=1, help='the ratio of true sample to all samples')
     aparser.add_argument('--checkpoint-dir', type=str, default='checkpoints/', help='location to store checkpoints/model weights after each epoch')
     aparser.add_argument('--log-dir', type=str, default='logs/', help='location to store fit.log (appended)')
+    aparser.add_argument('--all-patch-list', type=str, help='full path of all_patch_list json file')
+    aparser.add_argument('--detections-patch-list', type=str, help='full path of detections_patch_list json file')
 
     args = aparser.parse_args()
 
@@ -41,20 +43,24 @@ if __name__ == '__main__':
     sample_factor = args.sample_factor
     checkpoint_dir = args.checkpoint_dir
     log_dir = args.log_dir
+    train_levels = [0,1]
 
     date = str(datetime.now().date())
 
     print("Received following parameters:")
     print("batch_size={} \n checkpoint_dir={} \n epochs={} \n initial_epoch={} \n learning_rate={} \
-    \n load_weights={} \n log_dir={} \n sample_factor={}".format(batch_size, checkpoint_dir, 
-                                                                 epochs, initial_epoch, learning_rate, 
+    \n load_weights={} \n log_dir={} \n sample_factor={}".format(batch_size, checkpoint_dir,
+                                                                 epochs, initial_epoch, learning_rate,
                                                                  load_weights, log_dir, sample_factor))
 
+    all_patch_list_json = args.all_patch_list if args.all_patch_list else 'all_patch_list.json'
+    detections_patch_list_json = args.detections_patch_list if args.detections_patch_list else 'detections_patch_list.json'
+    print('Using following patch list json files: \n{}\n{}'.format(all_patch_list_json, detections_patch_list_json))
 
-    with open('all_patch_list.json', 'rb') as f:
+    with open(all_patch_list_json, 'rb') as f:
         all_patch_list = json.load(f)['list']
 
-    with open('detections_patch_list.json', 'rb') as f:
+    with open(detections_patch_list_json, 'rb') as f:
         detections_patch_list = json.load(f)['list']
 
     train_all_list, test_all_list = train_test_split(all_patch_list, test_size=0.1)
@@ -70,14 +76,14 @@ if __name__ == '__main__':
     train_generator = patch_generator('/home/mak/PathAI/slides/',
                                 train_all_list, train_true_list,
                                 sample_factor=sample_factor,
-                                batch_size=batch_size, dims=dims, levels=[1,2])
+                                batch_size=batch_size, dims=dims, levels=train_levels)
     sampleset_size_train = math.ceil(len(train_true_list)/sample_factor) + len(train_true_list)
     steps_per_epoch = math.ceil(sampleset_size_train/batch_size)
 
     validn_generator = patch_generator('/home/mak/PathAI/slides/',
                                 test_all_list, test_true_list,
                                 sample_factor=sample_factor,
-                                batch_size=batch_size, dims=dims, levels=[1,2])
+                                batch_size=batch_size, dims=dims, levels=train_levels)
 
     sampleset_size_validn = math.ceil(len(test_true_list)/sample_factor) + len(test_true_list)
     steps_per_epoch_validn = math.ceil(sampleset_size_validn/batch_size)
@@ -97,4 +103,3 @@ if __name__ == '__main__':
 
     last_epoch = epochs
     model.save('modelsaves/'+date+'_mobilenetv2_model_camelyon17_imageAug_dropout_afterEpoch-'+str(last_epoch)+'.h5')
-

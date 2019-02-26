@@ -66,13 +66,9 @@ def patch_generator(folder, all_patch_list,
                 coords = sample[1]
                 level = levels[np.random.randint(0, len(levels), dtype=np.int8)]
 
-                brightness = 0.85 + np.random.rand()*(1.15-0.85)
-                if brightness < 1.02 and brightness >0.98:
-                    brightness = 1
+                brightness = (0.95 + np.random.rand()*(1.05-0.95)) if np.random.rand() > 0.5 else 1
 
-                dims_factor = 0.9 + np.random.rand()*(1.15-0.9)
-                if dims_factor < 1.02 and dims_factor > 0.98:
-                    dims_factor = 1
+                dims_factor = (0.9 + np.random.rand()*(1.-0.9)) if np.random.rand() > 0.5 else 1
                 zoom_dims = int(dims[0] / dims_factor)
 
                 flip_v = np.random.rand() > 0.5
