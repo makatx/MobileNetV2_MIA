@@ -23,9 +23,13 @@ def patch_generator(folder, all_patch_list,
     folder: location of the image slides
 
     sample_factor = det_list_size / mix_list_size
-    detection_ratio = det_list_size / combined_list_size
-    cls = dls + mls = dls + dls/sf = dls(1+1/sf) = dls (sf+1)/sf
-    detection_ratio = dls/cls = dls/(dls * (sf+1)/sf) = sf/(sf+1)
+        if sample_factor = 1 then all patch sample size is same as detections patch sample size
+        if sample_factor = 2 then all patch sample size is *half* as detections patch sample size
+        if sample_factor = 0.5 then all patch sample size is *double* as detections patch sample size
+
+    #detection_ratio = det_list_size / combined_list_size
+    #cls = dls + mls = dls + dls/sf = dls(1+1/sf) = dls (sf+1)/sf
+    #detection_ratio = dls/cls = dls/(dls * (sf+1)/sf) = sf/(sf+1)
     '''
 
     #detection_ratio = sample_factor / (sample_factor + 1)

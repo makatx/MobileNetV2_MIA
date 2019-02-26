@@ -27,6 +27,8 @@ if __name__ == '__main__':
     aparser.add_argument('--output-dir', type=str, default='inferences/', help='location to store the inference output files (prediction and corresponding labels)')
     aparser.add_argument('--out-prefix', type=str, default='output_', help='prefix for output files')
     aparser.add_argument('--batch-size', type=int, default=32, help='batch_size to use')
+    aparser.add_argument('--all-patch-list', type=str, help='full path of all_patch_list json file')
+    aparser.add_argument('--detections-patch-list', type=str, help='full path of detections_patch_list json file')
 
     args = aparser.parse_args()
 
@@ -39,11 +41,15 @@ if __name__ == '__main__':
     print("Received following parameters:")
     print("batch_size={} \n load_weights={} \n output_dir={} \n sample_factor={} \n out_prefix={}".format(batch_size, load_weights, output_dir, sample_factor, out_prefix))
 
+    all_patch_list_json = args.all_patch_list if args.all_patch_list else 'all_patch_list.json'
+    detections_patch_list_json = args.detections_patch_list if args.detections_patch_list else 'detections_patch_list.json'
 
-    with open('all_patch_list.json', 'rb') as f:
+    print('Using following patch list json files: \n{}\n{}'.format(all_patch_list_json, detections_patch_list_json))
+
+    with open(all_patch_list_json, 'rb') as f:
         all_patch_list = json.load(f)['list']
 
-    with open('detections_patch_list.json', 'rb') as f:
+    with open(detections_patch_list_json, 'rb') as f:
         detections_patch_list = json.load(f)['list']
 
     dims = (256,256)
