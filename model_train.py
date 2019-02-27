@@ -21,7 +21,7 @@ from datetime import datetime
 if __name__ == '__main__':
 
     ## Parse input arguments from commandline
-    aparser = argparse.ArgumentParser('Testing argument parser.')
+    aparser = argparse.ArgumentParser('Train (or continue to train) MobileNetV2 model on patches')
     aparser.add_argument('--load-weights', type=str, help='full path of the checkpoint/model weights file to load')
     aparser.add_argument('--batch-size', type=int, default=32, help='batch_size to use')
     aparser.add_argument('--initial-epoch', type=int, default=0, help='starting epoch number to use for this run')
