@@ -32,7 +32,7 @@ if __name__ == '__main__':
     aparser.add_argument('--log-dir', type=str, default='logs/', help='location to store fit.log (appended)')
     aparser.add_argument('--all-patch-list', type=str, help='full path of all_patch_list json file')
     aparser.add_argument('--detections-patch-list', type=str, help='full path of detections_patch_list json file')
-    aparser.add_argument('--saves-name', type=str, default='none', help='string to add in checkpoints and model saves file names')
+    aparser.add_argument('--saves-name', type=str, default='__', help='string to add in checkpoints and model saves file names')
 
     args = aparser.parse_args()
 
@@ -54,6 +54,13 @@ if __name__ == '__main__':
     \n load_weights={} \n log_dir={} \n sample_factor={}".format(batch_size, checkpoint_dir,
                                                                  epochs, initial_epoch, learning_rate,
                                                                  load_weights, log_dir, sample_factor))
+
+    print('\nCheckpoint to be saved as:\n',
+    checkpoint_dir+date+'_weights_'+saves_name+'_{epoch:02d}--{categorical_accuracy:.4f}--{val_loss:.4f}.hdf5')
+
+    print('\nModel to be saved as:\n',
+    'modelsaves/'+date+'_mobilenetv2_model_camelyon17_'+saves_name+'_afterEpoch-'+str(epochs)+'.h5')
+
 
     all_patch_list_json = args.all_patch_list if args.all_patch_list else 'all_patch_list.json'
     detections_patch_list_json = args.detections_patch_list if args.detections_patch_list else 'detections_patch_list.json'
