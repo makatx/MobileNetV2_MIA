@@ -45,7 +45,7 @@ if __name__ == '__main__':
     checkpoint_dir = args.checkpoint_dir
     log_dir = args.log_dir
     saves_name = args.saves_name
-    train_levels = [0,1]
+    train_levels = [0]
 
     date = str(datetime.now().date())
 
