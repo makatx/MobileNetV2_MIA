@@ -6,6 +6,7 @@ import openslide
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 from math import ceil
+from tqdm import tqdm
 
 def patch_batch_generator_from_jsonlist(folder, patch_list, batch_size=64, level=1, dims=(256,256)):
     '''
@@ -34,8 +35,9 @@ if __name__ == '__main__':
     aparser.add_argument('--load-model', type=str, default='modelsaves/2019-03-03_mobilenetv2_model_camelyon17_imageAug_dropout_trainLevel-0-01-01-01_afterEpoch-4.h5', help='full path of the checkpoint/model weights file to load')
     aparser.add_argument('--batch-size', type=int, default=128, help='batch_size to use')
     aparser.add_argument('--initial-sample', type=int, default=0, help='starting sampleset number to use for this run')
+    aparser.add_argument('--total-sample', type=int, default=1, help='total sampleset number to use for this run starting from initial_sample')
     aparser.add_argument('--level', type=int, default=1, help='level to run predictions on')
-    aparser.add_argument('--out-file', type=str, default='hardnegative_out/out.json', help='location to store output')
+    aparser.add_argument('--out-file', type=str, default='hardnegative_out/out.json', help='location to store output (.json will be suffixed)')
     aparser.add_argument('--all-patch-list', type=str, default='all_patch_list_shuffled.json', help='full path of all_patch_list json file')
 
     args = aparser.parse_args()
@@ -45,29 +47,37 @@ if __name__ == '__main__':
     with open(patches_file, 'r') as f:
         all_patch_list = json.load(f)['list']
 
-    #sample_size = 1251866
-    sample_size = 64
-    sampleset = args.initial_sample
-    sampleset_start = sampleset*sample_size
-    sampleset_end = (sampleset+1)*sample_size
-
-    sample = all_patch_list[sampleset_start:sampleset_end]
     folder = '/home/mak/PathAI/slides/'
     batch_size = args.batch_size
     level = args.level
     dims = (256,256)
     model_file = args.load_model
-    gen = patch_batch_generator_from_jsonlist(folder, sample, batch_size, level, dims)
+    sample_size = 2*1251866
+    #sample_size = 64
+    sampleset = args.initial_sample
 
-    model = load_model(model_file)
-    predictions = model.predict_generator(gen, ceil(sample_size/batch_size), verbose=1)
+    for offset in range(args.total_sample):
+        sampleset_start = (sampleset+offset)*sample_size
+        sampleset_end = (sampleset+offset+1)*sample_size
 
-    labels = []
-    for s in sample:
-        labels.append(getLabel(folder+s[0], level, s[1], dims))
-    labels = np.array(labels)
+        print('working on sampleset from {} to {}'.format(sampleset_start, sampleset_end))
+        sample = all_patch_list[sampleset_start:sampleset_end]
+        gen = patch_batch_generator_from_jsonlist(folder, sample, batch_size, level, dims)
 
-    data = {'sample':sample, 'predictions':predictions.tolist(), 'labels':labels.tolist()}
+        model = load_model(model_file)
+        print('predicting on samples...')
+        predictions = model.predict_generator(gen, ceil(sample_size/batch_size), verbose=1)
 
-    with open(args.out_file, 'w') as f:
-        json.dump(data, f)
+        labels = []
+        print('getting corresponding labels...')
+        for s in tqdm(sample):
+            labels.append(getLabel(folder+s[0], level, s[1], dims))
+        labels = np.array(labels)
+
+        print('converting np.arrays to list...')
+        data = {'sample':sample, 'predictions':predictions.tolist(), 'labels':labels.tolist()}
+
+        out_file = args.out_file+'_'+str(offset)+'.json'
+        print('writing to file: ', out_file)
+        with open(out_file, 'w') as f:
+            json.dump(data, f)
