@@ -7,6 +7,7 @@ from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 from math import ceil
 from tqdm import tqdm
+import argparse
 
 def patch_batch_generator_from_jsonlist(folder, patch_list, batch_size=64, level=1, dims=(256,256)):
     '''
