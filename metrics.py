@@ -25,10 +25,10 @@ def thresold_metrics(predictions, labels, thresh=0.5):
     #print(np.sum(pred_thresholded), np.sum(lbl))
     #return np.sum(pred_thresholded*lbl)/np.sum(lbl)
 
-    return accuracy, precision, recall
+    return accuracy, precision, recall, true_positives, false_positives, false_negatives
 
 def metrics_df(predictions, labels, thresholds=[0.1, 0.3, 0.5, 0.7, 0.9]):
-    metrics = ['accuracy', 'precision', 'recall']
+    metrics = ['accuracy', 'precision', 'recall', 'TP', 'FP', 'FN']
     data = []
     for thresh in thresholds:
         data.append(np.array(thresold_metrics(predictions, labels, thresh)))
