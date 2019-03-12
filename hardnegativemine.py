@@ -67,7 +67,7 @@ if __name__ == '__main__':
 
         model = load_model(model_file)
         print('predicting on samples...')
-        predictions = model.predict_generator(gen, ceil(sample_size/batch_size), verbose=1)
+        predictions = model.predict_generator(gen, ceil(len(sample)/batch_size), verbose=1)
 
         labels = []
         print('getting corresponding labels...')
