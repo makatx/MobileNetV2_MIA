@@ -42,7 +42,7 @@ def patch_generator(folder, all_patch_list,
 
     while 1:
         all_patch_list = shuffle(all_patch_list)
-        det_patch_list = shuffle(det_patch_list)
+        #det_patch_list = shuffle(det_patch_list)
 
         all_patch_list_size = math.ceil( len(det_patch_list) / sample_factor )
         all_patch_list_sub = all_patch_list[:all_patch_list_size]
@@ -99,4 +99,4 @@ def patch_generator(folder, all_patch_list,
                 yield X_train
             else:
                 y_train = np.array(ground_truth)
-                yield shuffle(X_train, y_train)
+                yield X_train, y_train

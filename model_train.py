@@ -45,7 +45,7 @@ if __name__ == '__main__':
     checkpoint_dir = args.checkpoint_dir
     log_dir = args.log_dir
     saves_name = args.saves_name
-    train_levels = [0]
+    train_levels = [1]
 
     date = str(datetime.now().date())
 
@@ -77,7 +77,7 @@ if __name__ == '__main__':
 
     dims = (256,256)
     input_patch = Input(shape=(dims[0],dims[1],3,))
-    depth_multiplier = 0.5
+    depth_multiplier = 0.75
     probs = MobileNetv2Classifier(input_patch, num_classes=2, output_stride=32, depth_multiplier=depth_multiplier)
 
     model = Model(input_patch, probs)

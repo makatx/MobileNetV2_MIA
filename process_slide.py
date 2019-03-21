@@ -10,6 +10,7 @@ from scipy.ndimage.measurements import label
 from scipy.spatial.distance import pdist, squareform
 import cv2
 import argparse
+import pickle
 
 def RunModelOnTiles(model, slide, tile_list, level=1, batch_size=64, dims=(256,256)):
     steps = ceil((tile_list.shape[0])/batch_size)
@@ -122,7 +123,7 @@ def evaluateModelOnSlide(modelfile, slide_files, level=1, tile_level= 7, batch_s
         ## Get labels list for the tile_list
         labels = labelsList(slide_file, tile_list, level=level, dims=dims)
 
-        result[slide_file] = {'predictions': predictions.tolist(), 'labels': labels.tolist()}
+        results[slide_file] = {'predictions': predictions, 'labels': labels}
         #metrics.append(metrics_df(predictions, labels))
 
     return results
@@ -147,8 +148,8 @@ if __name__ == '__main__':
             slide_files.append(args.folder+line.strip('\n'))
     results = evaluateModelOnSlide(args.load_model, slide_files, level=1, tile_level= 7, batch_size=128, dims=(256,256))
 
-    with open(args.out_file, 'w') as f:
-        json.dump(results, f)
+    with open(args.out_file, 'wb') as f:
+        pickle.dump(results, f)
 
     if args.print_metrics:
         print('\n\nPrinting Metrics:')
