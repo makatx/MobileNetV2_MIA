@@ -84,7 +84,10 @@ def patch_generator(folder, all_patch_list,
                 patch_img = (patch_img - 128) / 128
                 patch.append(patch_img)
 
-                ground_truth.append(getLabel(filename,level,coords,(zoom_dims, zoom_dims)))
+                if len(sample) == 3:
+                    ground_truth.append(np.array(sample[2]))
+                else:
+                    ground_truth.append(getLabel(filename,level,coords,(zoom_dims, zoom_dims)))
 
                 #print('Level used: {}'.format(level))
 
