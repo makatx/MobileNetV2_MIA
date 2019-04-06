@@ -6,6 +6,9 @@ import sys
 
 
 def thresold_metrics(predictions, labels, thresh=0.5):
+    '''
+    takes np.arrays as input
+    '''
     pred = predictions[:,1]
     lbl = labels[:,1]
 
@@ -16,19 +19,24 @@ def thresold_metrics(predictions, labels, thresh=0.5):
     true_positives = np.sum(pred_thresholded*labels[:,1])
     false_positives = np.sum(pred_thresholded * np.logical_not(labels[:,1]))
     false_negatives = np.sum(np.logical_not(pred_thresholded)*labels[:,1])
+    true_negatives = np.sum(np.logical_not(pred_thresholded) * np.logical_not(labels[:,1]))
 
-    precision = true_positives / (true_positives+false_positives)
-    recall = true_positives / (true_positives+false_negatives)
+    positives = np.sum(lbl)
+    negatives = np.sum(np.logical_not(lbl))
+
+    precision = true_positives / (true_positives + false_positives)
+    recall = true_positives / (true_positives + false_negatives)
+    fpr = false_positives / (false_positives + true_negatives)
 
     accuracy = np.average(np.logical_not(np.logical_xor(pred_thresholded, lbl)))
 
     #print(np.sum(pred_thresholded), np.sum(lbl))
     #return np.sum(pred_thresholded*lbl)/np.sum(lbl)
 
-    return accuracy, precision, recall, true_positives, false_positives, false_negatives
+    return accuracy, precision, recall, fpr, true_positives, false_positives, false_negatives, true_negatives, positives, negatives
 
 def metrics_df(predictions, labels, thresholds=[0.1, 0.3, 0.5, 0.7, 0.9]):
-    metrics = ['accuracy', 'precision', 'recall', 'TP', 'FP', 'FN']
+    metrics = ['accuracy', 'precision', 'recall/TPR', 'FPR', 'TP', 'FP', 'FN', 'TN', 'P', 'N']
     data = []
     for thresh in thresholds:
         data.append(np.array(thresold_metrics(predictions, labels, thresh)))
